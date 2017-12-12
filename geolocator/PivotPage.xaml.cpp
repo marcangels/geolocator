@@ -185,3 +185,15 @@ void PivotPage::ItemView_ItemClick(Object^ sender, ItemClickEventArgs ^e)
 		throw ref new FailureException(_resourceLoader->GetString(L"NavigationFailedExceptionMessage"));
 	}
 }
+
+
+void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+
+}
+
+
+void geolocator::PivotPage::buttonStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+
+}

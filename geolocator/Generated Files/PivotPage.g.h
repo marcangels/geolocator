@@ -13,7 +13,19 @@ namespace Windows {
         namespace Xaml {
             namespace Controls {
                 ref class Pivot;
+                ref class Button;
                 ref class AppBarButton;
+            }
+        }
+    }
+}
+namespace Windows {
+    namespace UI {
+        namespace Xaml {
+            namespace Controls {
+                namespace Maps {
+                    ref class MapControl;
+                }
             }
         }
     }
@@ -32,6 +44,9 @@ namespace geolocator
         bool _contentLoaded;
     
         private: ::Windows::UI::Xaml::Controls::Pivot^ pivot;
+        private: ::Windows::UI::Xaml::Controls::Maps::MapControl^ MyMap;
+        private: ::Windows::UI::Xaml::Controls::Button^ buttonLaunch;
+        private: ::Windows::UI::Xaml::Controls::Button^ buttonStop;
         private: ::Windows::UI::Xaml::Controls::AppBarButton^ AddAppBarButton;
         private: ::Windows::UI::Xaml::Controls::AppBarButton^ SecondaryButton1;
         private: ::Windows::UI::Xaml::Controls::AppBarButton^ SecondaryButton2;
