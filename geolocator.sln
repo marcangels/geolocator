@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "geolocator", "geolocator\geolocator.vcxproj", "{FB4E70F6-C06A-4451-90D9-519BFC8CC899}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|x86 = Debug|x86
+		Release|ARM = Release|ARM
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Debug|ARM.ActiveCfg = Debug|ARM
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Debug|ARM.Build.0 = Debug|ARM
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Debug|ARM.Deploy.0 = Debug|ARM
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Debug|x86.ActiveCfg = Debug|Win32
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Debug|x86.Build.0 = Debug|Win32
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Debug|x86.Deploy.0 = Debug|Win32
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Release|ARM.ActiveCfg = Release|ARM
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Release|ARM.Build.0 = Release|ARM
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Release|ARM.Deploy.0 = Release|ARM
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Release|x86.ActiveCfg = Release|Win32
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Release|x86.Build.0 = Release|Win32
+		{FB4E70F6-C06A-4451-90D9-519BFC8CC899}.Release|x86.Deploy.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
