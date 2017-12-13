@@ -254,14 +254,15 @@ void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows
 	_mutexGps->lock();
 
 	if (!isOnTickDefined) {
-		auto timer = ref new DispatcherTimer();
+		timer = ref new DispatcherTimer();
 		TimeSpan span;
 		span.Duration = 500;
 		timer->Interval = span;
-		timer->Start();
 		auto reigstrationToken = timer->Tick += ref new EventHandler<Object^>(this, &PivotPage::OnTick);
 		isOnTickDefined = true;
 	}
+
+	timer->Start();
 	
 	_threadGps = new thread(ThreadGPS);
 	_threadChrono = new thread(ThreadChrono);
@@ -278,6 +279,11 @@ void geolocator::PivotPage::buttonStop_Click(Platform::Object^ sender, Windows::
 
 	_threadChrono->join();
 	_threadGps->join();
+
+	timer->Stop();
+
+	_mutexChrono->unlock();
+	_mutexGps->unlock();
 }
 
 

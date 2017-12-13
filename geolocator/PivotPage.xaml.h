@@ -61,6 +61,7 @@ namespace geolocator
 	private:
 		std::thread *_threadGps;
 		std::thread *_threadChrono;
+		Windows::UI::Xaml::DispatcherTimer^ timer;
 
 		Windows::ApplicationModel::Resources::ResourceLoader^ _resourceLoader;
 
