@@ -57,9 +57,10 @@
                     </ListView.ItemTemplate>
                 </ListView>-->
                 <Grid>
-                    <Button x:Name="buttonLaunch" Content="Démarrer" HorizontalAlignment="Left" Margin="30,81,0,0" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="labelCoords"/>
+                    <Button x:ConnectionId='1' x:Name="buttonLaunch" Content="Démarrer" HorizontalAlignment="Left" Margin="30,81,0,0" VerticalAlignment="Top"                           />
 
-                    <Button x:Name="buttonStop" Content="Arrêter" HorizontalAlignment="Right" Margin="0,81,30,0" VerticalAlignment="Top"/>
+                    <Button x:ConnectionId='2' x:Name="buttonStop" Content="Arrêter" HorizontalAlignment="Right" Margin="0,81,30,0" VerticalAlignment="Top"                          IsEnabled="False"/>
                 </Grid>
             </PivotItem>
 
@@ -103,7 +104,7 @@
 
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton x:ConnectionId='1' x:Uid="AddAppBarButton" x:Name="AddAppBarButton" Label="add" Icon="Add"                               />
+            <AppBarButton x:ConnectionId='3' x:Uid="AddAppBarButton" x:Name="AddAppBarButton" Label="add" Icon="Add"                               />
             <CommandBar.SecondaryCommands>
                 <AppBarButton x:Uid="SecondaryButton1" x:Name="SecondaryButton1" Label="secondary command 1" />
                 <AppBarButton x:Uid="SecondaryButton2" x:Name="SecondaryButton2" Label="secondary command 2" />

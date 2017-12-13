@@ -6,10 +6,15 @@
 #include "pch.h"
 #include "PivotPage.xaml.h"
 #include "ItemPage.xaml.h"
+#include <thread>
+#include <mutex>
+#include <ctime>
 
+using namespace std;
 using namespace geolocator;
 using namespace geolocator::Common;
 using namespace geolocator::Data;
+using namespace Windows::Devices::Geolocation;
 
 using namespace concurrency;
 using namespace Platform;
@@ -29,6 +34,12 @@ using namespace Windows::UI::Xaml::Navigation;
 
 // Pour plus d'informations sur le modèle Application Pivot, consultez la page http://go.microsoft.com/fwlink/?LinkID=391641
 
+double duration;
+String^ strCoords = "undefined";
+mutex *_mutexGps;
+mutex *_mutexChrono;
+bool threadChronoIsRunning, threadGpsIsRunning, isOnTickDefined=false;
+
 PivotPage::PivotPage()
 {
 	InitializeComponent();
@@ -43,6 +54,9 @@ PivotPage::PivotPage()
 
 	SetValue(_defaultViewModelProperty, ref new Platform::Collections::Map<String^, Object^>(std::less<String^>()));
 	SetValue(_navigationHelperProperty, navigationHelper);
+
+	_mutexChrono = new mutex();
+	_mutexGps = new mutex();
 }
 
 DependencyProperty^ PivotPage::_navigationHelperProperty = nullptr;
@@ -186,14 +200,84 @@ void PivotPage::ItemView_ItemClick(Object^ sender, ItemClickEventArgs ^e)
 	}
 }
 
+void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
+	_mutexChrono->unlock();
+	_mutexGps->unlock();
+	_mutexChrono->lock();
+	_mutexGps->lock();
+	labelCoords->Text = duration + " : " + strCoords;
+}
+
+void ThreadGPS() {
+	Geolocator^ geolocator = ref new Geolocator();
+	geolocator->ReportInterval = 250;
+	geolocator->DesiredAccuracyInMeters = (unsigned int)5;
+	threadGpsIsRunning = true;
+	while (threadGpsIsRunning) {
+		_mutexGps->lock();
+		auto m_getOperation = geolocator->GetGeopositionAsync();
+
+		m_getOperation->Completed = ref new AsyncOperationCompletedHandler<Geoposition^>(
+			[=](IAsyncOperation<Geoposition^>^ asyncOperation, AsyncStatus status) mutable {
+			if (status != AsyncStatus::Error) {
+				Geoposition^ position = asyncOperation->GetResults();
+				strCoords = position->Coordinate->Latitude + ";" + position->Coordinate->Longitude;
+			}
+			else {
+				strCoords = "Erreur";
+			}
+		});
+
+		_mutexGps->unlock();
+		Sleep(1000);
+	}
+}
+
+void ThreadChrono() {
+	std::clock_t start;
+	start = std::clock();
+	threadChronoIsRunning = true;
+	while (threadChronoIsRunning) {
+		_mutexChrono->lock();
+		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+		_mutexChrono->unlock();
+		Sleep(500);
+	}
+}
 
 void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
+	buttonLaunch->IsEnabled = false;
+	buttonStop->IsEnabled = true;
 
+	_mutexChrono->lock();
+	_mutexGps->lock();
+
+	if (!isOnTickDefined) {
+		auto timer = ref new DispatcherTimer();
+		TimeSpan span;
+		span.Duration = 500;
+		timer->Interval = span;
+		timer->Start();
+		auto reigstrationToken = timer->Tick += ref new EventHandler<Object^>(this, &PivotPage::OnTick);
+		isOnTickDefined = true;
+	}
+	
+	_threadGps = new thread(ThreadGPS);
+	_threadChrono = new thread(ThreadChrono);
 }
 
 
 void geolocator::PivotPage::buttonStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
+	buttonLaunch->IsEnabled = true;
+	buttonStop->IsEnabled = false;
 
+	threadChronoIsRunning = false;
+	threadGpsIsRunning = false;
+
+	_threadChrono->join();
+	_threadGps->join();
 }
+
+

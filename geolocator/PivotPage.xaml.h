@@ -6,6 +6,8 @@
 #pragma once
 
 #include "PivotPage.g.h"
+#include <thread>
+#include <mutex>
 
 namespace geolocator
 {
@@ -57,6 +59,9 @@ namespace geolocator
 		virtual void OnNavigatedFrom(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
 
 	private:
+		std::thread *_threadGps;
+		std::thread *_threadChrono;
+
 		Windows::ApplicationModel::Resources::ResourceLoader^ _resourceLoader;
 
 		void SecondPivot_Loaded(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
@@ -69,5 +74,6 @@ namespace geolocator
 		static Windows::UI::Xaml::DependencyProperty^ _navigationHelperProperty;
 		void buttonLaunch_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void buttonStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void OnTick(Platform::Object^ sender, Object^ e);
 	};
 }

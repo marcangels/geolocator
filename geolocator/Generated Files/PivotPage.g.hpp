@@ -26,6 +26,8 @@ void ::geolocator::PivotPage::InitializeComponent()
     pivot = safe_cast<::Windows::UI::Xaml::Controls::Pivot^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"pivot"));
     // Get the MapControl named 'MyMap'
     MyMap = safe_cast<::Windows::UI::Xaml::Controls::Maps::MapControl^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"MyMap"));
+    // Get the TextBlock named 'labelCoords'
+    labelCoords = safe_cast<::Windows::UI::Xaml::Controls::TextBlock^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"labelCoords"));
     // Get the Button named 'buttonLaunch'
     buttonLaunch = safe_cast<::Windows::UI::Xaml::Controls::Button^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"buttonLaunch"));
     // Get the Button named 'buttonStop'
@@ -43,6 +45,14 @@ void ::geolocator::PivotPage::Connect(int connectionId, Platform::Object^ target
     switch (connectionId)
     {
     case 1:
+        (safe_cast<::Windows::UI::Xaml::Controls::Primitives::ButtonBase^>(target))->Click +=
+            ref new ::Windows::UI::Xaml::RoutedEventHandler(this, (void (::geolocator::PivotPage::*)(Platform::Object^, Windows::UI::Xaml::RoutedEventArgs^))&PivotPage::buttonLaunch_Click);
+        break;
+    case 2:
+        (safe_cast<::Windows::UI::Xaml::Controls::Primitives::ButtonBase^>(target))->Click +=
+            ref new ::Windows::UI::Xaml::RoutedEventHandler(this, (void (::geolocator::PivotPage::*)(Platform::Object^, Windows::UI::Xaml::RoutedEventArgs^))&PivotPage::buttonStop_Click);
+        break;
+    case 3:
         (safe_cast<::Windows::UI::Xaml::Controls::Primitives::ButtonBase^>(target))->Click +=
             ref new ::Windows::UI::Xaml::RoutedEventHandler(this, (void (::geolocator::PivotPage::*)(Platform::Object^, Windows::UI::Xaml::RoutedEventArgs^))&PivotPage::AddAppBarButton_Click);
         break;
