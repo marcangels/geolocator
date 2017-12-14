@@ -57,10 +57,13 @@
                     </ListView.ItemTemplate>
                 </ListView>-->
                 <Grid>
-                    <TextBlock x:Name="labelCoords"/>
+                    <TextBlock x:Name="labelCoords" FontSize="32" Margin="10,10,10,368" TextAlignment="Center" Text="00:00:00"/>
                     <Button x:ConnectionId='1' x:Name="buttonLaunch" Content="Démarrer" HorizontalAlignment="Left" Margin="30,81,0,0" VerticalAlignment="Top"                           />
 
                     <Button x:ConnectionId='2' x:Name="buttonStop" Content="Arrêter" HorizontalAlignment="Right" Margin="0,81,30,0" VerticalAlignment="Top"                          IsEnabled="False"/>
+                    <ListView>
+                        
+                    </ListView>
                 </Grid>
             </PivotItem>
 
@@ -73,28 +76,28 @@
                 d:DataContext="{Binding Groups[1], Source={d:DesignData Source=/DataModel/SampleData.json, Type=data:SampleDataSource}}">
                 <!--Liste double trait, aucun habillage du texte-->
                 <!--<ListView
-                    ItemsSource="{Binding Items}"
-                    IsItemClickEnabled="True"
-                    ItemClick="ItemView_ItemClick"
-                    Loaded="SecondPivot_Loaded"
-                    ContinuumNavigationTransitionInfo.ExitElementContainer="True">
+                        ItemsSource="{Binding Items}"
+                        IsItemClickEnabled="True"
+                        ItemClick="ItemView_ItemClick"
+                        Loaded="SecondPivot_Loaded"
+                        ContinuumNavigationTransitionInfo.ExitElementContainer="True" Margin="0,134,0,0">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0,0,0,9.5">
                                 <TextBlock
-                                    Text="{Binding Title}"
-                                    Pivot.SlideInAnimationGroup="1"
-                                    CommonNavigationTransitionInfo.IsStaggerElement="True"
-                                    Style="{StaticResource ListViewItemTextBlockStyle}"/>
+                                        Text="{Binding Title}"
+                                        Pivot.SlideInAnimationGroup="1"
+                                        CommonNavigationTransitionInfo.IsStaggerElement="True"
+                                        Style="{StaticResource ListViewItemTextBlockStyle}"/>
                                 <TextBlock
-                                    Text="{Binding Description}"
-                                    Pivot.SlideInAnimationGroup="2"
-                                    CommonNavigationTransitionInfo.IsStaggerElement="True"
-                                    Style="{StaticResource ListViewItemContentTextBlockStyle}"/>
+                                        Text="{Binding Description}"
+                                        Pivot.SlideInAnimationGroup="2"
+                                        CommonNavigationTransitionInfo.IsStaggerElement="True"
+                                        Style="{StaticResource ListViewItemContentTextBlockStyle}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
-                </ListView>-->
+                </ListView> -->
                 <Grid>
                     <my:MapControl Name="MyMap" />
                 </Grid>

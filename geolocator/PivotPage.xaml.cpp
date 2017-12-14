@@ -205,7 +205,11 @@ void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
 	_mutexGps->unlock();
 	_mutexChrono->lock();
 	_mutexGps->lock();
-	labelCoords->Text = duration + " : " + strCoords;
+	int h = duration / 3600;
+	int m = (duration-(h*3600)) / 60;
+	int s = (duration - (h * 3600) - (m * 60));
+	//labelCoords->Text = duration + " : " + strCoords;
+	labelCoords->Text = h + ":" + m + ":" + s + " : " + strCoords;
 }
 
 void ThreadGPS() {
