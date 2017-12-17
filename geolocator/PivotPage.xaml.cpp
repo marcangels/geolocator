@@ -8,6 +8,7 @@
 #include <thread>
 #include <mutex>
 #include <ctime>
+#include <atomic>
 
 using namespace std;
 using namespace geolocator;
@@ -37,7 +38,8 @@ double duration;
 String^ strCoords = "undefined";
 mutex *_mutexGps;
 mutex *_mutexChrono;
-bool threadChronoIsRunning, threadGpsIsRunning, isOnTickDefined=false;
+atomic<bool> threadChronoIsRunning, threadGpsIsRunning;
+bool isOnTickDefined = false;
 
 PivotPage::PivotPage()
 {
@@ -63,13 +65,13 @@ PivotPage::~PivotPage() {
 	threadChronoIsRunning = false;
 	threadGpsIsRunning = false;
 
-	_threadChrono->join();
-	_threadGps->join();
-
 	timer->Stop();
 
 	_mutexChrono->unlock();
 	_mutexGps->unlock();
+
+	_threadChrono->join();
+	_threadGps->join();
 }
 
 DependencyProperty^ PivotPage::_navigationHelperProperty = nullptr;
@@ -183,11 +185,11 @@ void ThreadGPS() {
 	geolocator->DesiredAccuracyInMeters = (unsigned int)5;
 	threadGpsIsRunning = true;
 	while (threadGpsIsRunning) {
-		_mutexGps->lock();
 		auto m_getOperation = geolocator->GetGeopositionAsync();
 
 		m_getOperation->Completed = ref new AsyncOperationCompletedHandler<Geoposition^>(
 			[=](IAsyncOperation<Geoposition^>^ asyncOperation, AsyncStatus status) mutable {
+			_mutexGps->lock();
 			if (status != AsyncStatus::Error) {
 				Geoposition^ position = asyncOperation->GetResults();
 				strCoords = position->Coordinate->Latitude + ";" + position->Coordinate->Longitude;
@@ -195,10 +197,9 @@ void ThreadGPS() {
 			else {
 				strCoords = "Erreur";
 			}
+			_mutexGps->unlock();
 		});
-
-		_mutexGps->unlock();
-		Sleep(1000);
+		Sleep(500);
 	}
 }
 
@@ -210,7 +211,6 @@ void ThreadChrono() {
 		_mutexChrono->lock();
 		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 		_mutexChrono->unlock();
-		Sleep(500);
 	}
 }
 
@@ -246,13 +246,13 @@ void geolocator::PivotPage::buttonStop_Click(Platform::Object^ sender, Windows::
 	threadChronoIsRunning = false;
 	threadGpsIsRunning = false;
 
-	_threadChrono->join();
-	_threadGps->join();
-
 	timer->Stop();
 
 	_mutexChrono->unlock();
 	_mutexGps->unlock();
+
+	_threadChrono->join();
+	_threadGps->join();
 }
 
 
