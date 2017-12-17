@@ -5,7 +5,6 @@
 
 #include "pch.h"
 #include "PivotPage.xaml.h"
-#include "ItemPage.xaml.h"
 #include <thread>
 #include <mutex>
 #include <ctime>
@@ -152,59 +151,11 @@ void PivotPage::SecondPivot_Loaded(Object^ sender, RoutedEventArgs ^e)
 	}, task_continuation_context::use_current());
 }
 
-/// <summary>
-/// Ajoute un élément à la liste en cas de clic sur le bouton de la barre de l'application.
-/// </summary>
-void PivotPage::AddAppBarButton_Click(Object^ sender, RoutedEventArgs ^e)
-{
-	String^ groupName;
-	if (pivot->SelectedIndex == 0)
-	{
-		groupName = GetFirstGroupName();
-	}
-	else
-	{
-		groupName = GetSecondGroupName();
-	}
-
-	auto group = safe_cast<SampleDataGroup^>(DefaultViewModel->Lookup(groupName));
-	auto nextItemId = group->Items->Size + 1;
-	std::wstring uniqueId = std::wstring(L"Group-") + std::to_wstring(pivot->SelectedIndex + 1) + std::wstring(L"-Item-") + std::to_wstring(nextItemId);
-	std::wstring title = std::wstring(L"Item Title: ") + std::to_wstring(nextItemId);
-
-	auto newItem = ref new SampleDataItem(
-		ref new String(uniqueId.c_str()),
-		ref new String(title.c_str()),
-		nullptr,
-		nullptr,
-		_resourceLoader->GetString("NewItemDescription"),
-		nullptr);
-
-	group->Items->Append(newItem);
-
-	// Faire apparaître le nouvel élément.
-	auto container = safe_cast<ContentControl^>(pivot->ContainerFromIndex(pivot->SelectedIndex));
-	auto listView = safe_cast<ListView^>(container->ContentTemplateRoot);
-	listView->ScrollIntoView(newItem, ScrollIntoViewAlignment::Leading);
-}
-
-/// <summary>
-/// Appelé lorsqu'un utilisateur clique sur un élément appartenant à une section.
-/// </summary>
-void PivotPage::ItemView_ItemClick(Object^ sender, ItemClickEventArgs ^e)
-{
-	auto itemId = safe_cast<SampleDataItem^>(e->ClickedItem)->UniqueId;
-	if (!Frame->Navigate(ItemPage::typeid, itemId))
-	{
-		throw ref new FailureException(_resourceLoader->GetString(L"NavigationFailedExceptionMessage"));
-	}
-}
-
 void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
 	_mutexChrono->unlock();
 	_mutexGps->unlock();
-	_mutexChrono->lock();
 	_mutexGps->lock();
+	_mutexChrono->lock();
 	int h = duration / 3600;
 	int m = (duration-(h*3600)) / 60;
 	int s = (duration - (h * 3600) - (m * 60));

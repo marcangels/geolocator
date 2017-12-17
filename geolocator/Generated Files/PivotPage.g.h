@@ -15,7 +15,6 @@ namespace Windows {
                 ref class Pivot;
                 ref class TextBlock;
                 ref class Button;
-                ref class AppBarButton;
             }
         }
     }
@@ -49,9 +48,6 @@ namespace geolocator
         private: ::Windows::UI::Xaml::Controls::TextBlock^ labelCoords;
         private: ::Windows::UI::Xaml::Controls::Button^ buttonLaunch;
         private: ::Windows::UI::Xaml::Controls::Button^ buttonStop;
-        private: ::Windows::UI::Xaml::Controls::AppBarButton^ AddAppBarButton;
-        private: ::Windows::UI::Xaml::Controls::AppBarButton^ SecondaryButton1;
-        private: ::Windows::UI::Xaml::Controls::AppBarButton^ SecondaryButton2;
     };
 }
 

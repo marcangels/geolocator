@@ -4,7 +4,6 @@
 //
 
 #include "pch.h"
-#include "ItemPage.xaml.h"
 #include "PivotPage.xaml.h"
 
 using namespace geolocator;
@@ -38,7 +37,6 @@ App::App()
 	Suspending += ref new SuspendingEventHandler(this, &App::OnSuspending);
 
 	PivotPage::RegisterDependencyProperties();
-	ItemPage::RegisterDependencyProperties();
 	SuspensionManager::RegisterDependencyProperties();
 }
 

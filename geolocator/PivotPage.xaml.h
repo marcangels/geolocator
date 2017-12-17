@@ -68,8 +68,6 @@ namespace geolocator
 		void SecondPivot_Loaded(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void NavigationHelper_LoadState(Platform::Object^ sender, Common::LoadStateEventArgs^ e);
 		void NavigationHelper_SaveState(Platform::Object^ sender, Common::SaveStateEventArgs^ e);
-		void AddAppBarButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void ItemView_ItemClick(Platform::Object^ sender, Windows::UI::Xaml::Controls::ItemClickEventArgs^ e);
 
 		static Windows::UI::Xaml::DependencyProperty^ _defaultViewModelProperty;
 		static Windows::UI::Xaml::DependencyProperty^ _navigationHelperProperty;

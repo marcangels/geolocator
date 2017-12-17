@@ -10,11 +10,9 @@
 #include "XamlTypeInfo.g.h"
 
 #include "App.xaml.h"
-#include "ItemPage.xaml.h"
 #include "PivotPage.xaml.h"
 
 #include "App.g.hpp"
-#include "ItemPage.g.hpp"
 #include "PivotPage.g.hpp"
 
 ::Platform::Collections::Vector<::Windows::UI::Xaml::Markup::IXamlMetadataProvider^>^ ::XamlTypeInfo::InfoProvider::XamlTypeInfoProvider::OtherProviders::get()
@@ -89,14 +87,14 @@
         return ref new XamlSystemBaseType(typeName);
     }
 
-    if (typeName == L"geolocator.ItemPage")
+    if (typeName == L"geolocator.PivotPage")
     {
         ::XamlTypeInfo::InfoProvider::XamlUserType^ userType = ref new ::XamlTypeInfo::InfoProvider::XamlUserType(this, typeName, GetXamlTypeByName(L"Windows.UI.Xaml.Controls.Page"));
         userType->KindOfType = ::Windows::UI::Xaml::Interop::TypeKind::Custom;
         userType->Activator =
             []() -> Platform::Object^ 
             {
-                return ref new ::geolocator::ItemPage(); 
+                return ref new ::geolocator::PivotPage(); 
             };
         userType->AddMemberName(L"DefaultViewModel");
         userType->AddMemberName(L"NavigationHelper");
@@ -127,21 +125,6 @@
         userType->AddMemberName(L"GoForwardCommand");
         userType->AddMemberName(L"GoBackCommand");
         userType->SetIsBindable();
-        userType->SetIsLocalType();
-        return userType;
-    }
-
-    if (typeName == L"geolocator.PivotPage")
-    {
-        ::XamlTypeInfo::InfoProvider::XamlUserType^ userType = ref new ::XamlTypeInfo::InfoProvider::XamlUserType(this, typeName, GetXamlTypeByName(L"Windows.UI.Xaml.Controls.Page"));
-        userType->KindOfType = ::Windows::UI::Xaml::Interop::TypeKind::Custom;
-        userType->Activator =
-            []() -> Platform::Object^ 
-            {
-                return ref new ::geolocator::PivotPage(); 
-            };
-        userType->AddMemberName(L"DefaultViewModel");
-        userType->AddMemberName(L"NavigationHelper");
         userType->SetIsLocalType();
         return userType;
     }
@@ -232,36 +215,6 @@
 
 ::Windows::UI::Xaml::Markup::IXamlMember^ ::XamlTypeInfo::InfoProvider::XamlTypeInfoProvider::CreateXamlMember(::Platform::String^ longMemberName)
 {
-    if (longMemberName == L"geolocator.ItemPage.DefaultViewModel")
-    {
-        ::XamlTypeInfo::InfoProvider::XamlMember^ xamlMember = ref new ::XamlTypeInfo::InfoProvider::XamlMember(this, L"DefaultViewModel", L"Windows.Foundation.Collections.IObservableMap`2<String, Object>");
-        xamlMember->SetIsDependencyProperty();
-        xamlMember->Getter =
-            [](Object^ instance) -> Object^
-            {
-                auto that = (::geolocator::ItemPage^)instance;
-                return that->DefaultViewModel;
-            };
-
-        xamlMember->SetIsReadOnly();
-        return xamlMember;
-    }
-
-    if (longMemberName == L"geolocator.ItemPage.NavigationHelper")
-    {
-        ::XamlTypeInfo::InfoProvider::XamlMember^ xamlMember = ref new ::XamlTypeInfo::InfoProvider::XamlMember(this, L"NavigationHelper", L"geolocator.Common.NavigationHelper");
-        xamlMember->SetIsDependencyProperty();
-        xamlMember->Getter =
-            [](Object^ instance) -> Object^
-            {
-                auto that = (::geolocator::ItemPage^)instance;
-                return that->NavigationHelper;
-            };
-
-        xamlMember->SetIsReadOnly();
-        return xamlMember;
-    }
-
     if (longMemberName == L"geolocator.PivotPage.DefaultViewModel")
     {
         ::XamlTypeInfo::InfoProvider::XamlMember^ xamlMember = ref new ::XamlTypeInfo::InfoProvider::XamlMember(this, L"DefaultViewModel", L"Windows.Foundation.Collections.IObservableMap`2<String, Object>");

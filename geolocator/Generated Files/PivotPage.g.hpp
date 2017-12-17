@@ -32,12 +32,6 @@ void ::geolocator::PivotPage::InitializeComponent()
     buttonLaunch = safe_cast<::Windows::UI::Xaml::Controls::Button^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"buttonLaunch"));
     // Get the Button named 'buttonStop'
     buttonStop = safe_cast<::Windows::UI::Xaml::Controls::Button^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"buttonStop"));
-    // Get the AppBarButton named 'AddAppBarButton'
-    AddAppBarButton = safe_cast<::Windows::UI::Xaml::Controls::AppBarButton^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"AddAppBarButton"));
-    // Get the AppBarButton named 'SecondaryButton1'
-    SecondaryButton1 = safe_cast<::Windows::UI::Xaml::Controls::AppBarButton^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"SecondaryButton1"));
-    // Get the AppBarButton named 'SecondaryButton2'
-    SecondaryButton2 = safe_cast<::Windows::UI::Xaml::Controls::AppBarButton^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"SecondaryButton2"));
 }
 
 void ::geolocator::PivotPage::Connect(int connectionId, Platform::Object^ target)
@@ -51,10 +45,6 @@ void ::geolocator::PivotPage::Connect(int connectionId, Platform::Object^ target
     case 2:
         (safe_cast<::Windows::UI::Xaml::Controls::Primitives::ButtonBase^>(target))->Click +=
             ref new ::Windows::UI::Xaml::RoutedEventHandler(this, (void (::geolocator::PivotPage::*)(Platform::Object^, Windows::UI::Xaml::RoutedEventArgs^))&PivotPage::buttonStop_Click);
-        break;
-    case 3:
-        (safe_cast<::Windows::UI::Xaml::Controls::Primitives::ButtonBase^>(target))->Click +=
-            ref new ::Windows::UI::Xaml::RoutedEventHandler(this, (void (::geolocator::PivotPage::*)(Platform::Object^, Windows::UI::Xaml::RoutedEventArgs^))&PivotPage::AddAppBarButton_Click);
         break;
     }
     (void)connectionId; // Unused parameter
