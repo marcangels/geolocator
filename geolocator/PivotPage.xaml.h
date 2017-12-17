@@ -59,6 +59,7 @@ namespace geolocator
 		virtual void OnNavigatedFrom(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
 
 	private:
+		~PivotPage();
 		std::thread *_threadGps;
 		std::thread *_threadChrono;
 		Windows::UI::Xaml::DispatcherTimer^ timer;

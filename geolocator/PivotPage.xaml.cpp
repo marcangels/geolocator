@@ -58,6 +58,20 @@ PivotPage::PivotPage()
 	_mutexGps = new mutex();
 }
 
+PivotPage::~PivotPage() {
+	if (!threadChronoIsRunning && !threadGpsIsRunning) return;
+	threadChronoIsRunning = false;
+	threadGpsIsRunning = false;
+
+	_threadChrono->join();
+	_threadGps->join();
+
+	timer->Stop();
+
+	_mutexChrono->unlock();
+	_mutexGps->unlock();
+}
+
 DependencyProperty^ PivotPage::_navigationHelperProperty = nullptr;
 DependencyProperty^ PivotPage::_defaultViewModelProperty = nullptr;
 
