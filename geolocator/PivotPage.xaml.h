@@ -68,6 +68,7 @@ namespace geolocator
 		Windows::ApplicationModel::Resources::ResourceLoader^ _resourceLoader;
 
 		void SecondPivot_Loaded(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void OnStatusChanged(Windows::Devices::Geolocation::Geolocator^ sender, Windows::Devices::Geolocation::StatusChangedEventArgs ^ e);
 		void NavigationHelper_LoadState(Platform::Object^ sender, Common::LoadStateEventArgs^ e);
 		void NavigationHelper_SaveState(Platform::Object^ sender, Common::SaveStateEventArgs^ e);
 

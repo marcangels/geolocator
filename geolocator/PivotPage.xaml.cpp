@@ -41,11 +41,18 @@ Geoposition^ position = nullptr;
 //Vector<BasicGeoposition>^ lstPoints = ref new Vector<BasicGeoposition>();
 //Geopath^ geopath = nullptr;
 //MapPolyline^ mapPolyline = nullptr;
-String^ strCoords = "undefined";
+String^ strCoords = "undefined", ^status;
 mutex *_mutexGps;
 mutex *_mutexChrono;
 atomic<bool> threadChronoIsRunning, threadGpsIsRunning;
 bool isOnTickDefined = false;
+
+void LogMessage(Object^ parameter)
+{
+	auto paraString = parameter->ToString();
+	auto formattedText = std::wstring(paraString->Data()).append(L"\r\n");
+	OutputDebugString(formattedText.c_str());
+}
 
 PivotPage::PivotPage()
 {
@@ -63,7 +70,7 @@ PivotPage::PivotPage()
 	SetValue(_navigationHelperProperty, navigationHelper);
 
 	this->geolocator = ref new Geolocator();
-	geolocator->ReportInterval = 250;
+	geolocator->ReportInterval = 1000;
 	geolocator->DesiredAccuracyInMeters = (unsigned int)5;
 	
 	_mutexChrono = new mutex();
@@ -200,7 +207,7 @@ void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
 		MyMap->Center = centerPoint;
 		MyMap->ZoomLevel = 15;
 	}
-	labelCoords->Text = h + ":" + m + ":" + s + " : " + strCoords;
+	labelCoords->Text = status + ":" + h + ":" + m + ":" + s + " : " + strCoords;
 }
 
 void ThreadGPS(Geolocator^ geolocator) {
@@ -239,7 +246,7 @@ void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows
 	buttonLaunch->IsEnabled = false;
 	buttonStop->IsEnabled = true;
 
-	//geolocator->StatusChanged += ref new TypedEventHandler<Geolocator^, StatusChangedEventArgs^>(this, &PivotPage::OnStatusChanged);
+	geolocator->StatusChanged += ref new TypedEventHandler<Geolocator^, StatusChangedEventArgs^>(this, &PivotPage::OnStatusChanged);
 
 	MyMap->MapElements->Clear();
 	//geopath = ref new Geopath(lstPoints);
@@ -262,6 +269,45 @@ void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows
 	
 	_threadGps = new thread(ThreadGPS, geolocator);
 	_threadChrono = new thread(ThreadChrono);
+}
+
+void PivotPage::OnStatusChanged(Geolocator^ sender, StatusChangedEventArgs^ e) {
+	switch (e->Status)
+	{
+	case PositionStatus::Ready:
+		// Location platform is providing valid data.
+		status = "Ready";
+		break;
+
+	case PositionStatus::Initializing:
+		// Location platform is acquiring a fix. It may or may not have data. Or the data may be less accurate.
+		status = "Initializing";
+		break;
+
+	case PositionStatus::NoData:
+		// Location platform could not obtain location data.
+		status = "No data";
+		break;
+
+	case PositionStatus::Disabled:
+		// The permission to access location data is denied by the user or other policies.
+		status = "Disabled";
+		break;
+
+	case PositionStatus::NotInitialized:
+		// The location platform is not initialized. This indicates that the application has not made a request for location data.
+		status = "Not initialized";
+		break;
+
+	case PositionStatus::NotAvailable:
+		// The location platform is not available on this version of the OS.
+		status = "Not available";
+		break;
+
+	default:
+		status = "Unknown";
+		break;
+	}
 }
 
 
