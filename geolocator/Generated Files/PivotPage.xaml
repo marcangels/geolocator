@@ -9,6 +9,11 @@
     mc:Ignorable="d"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Resources>
+        <DataTemplate x:Key="ListViewItemTemplate">
+            <Grid/>
+        </DataTemplate>
+    </Page.Resources>
     <Page.Transitions>
         <TransitionCollection>
             <NavigationThemeTransition>
@@ -34,7 +39,15 @@
                     <Button x:ConnectionId='1' x:Name="buttonLaunch" Content="Démarrer" HorizontalAlignment="Left" Margin="30,81,0,0" VerticalAlignment="Top"                           />
 
                     <Button x:ConnectionId='2' x:Name="buttonStop" Content="Arrêter" HorizontalAlignment="Right" Margin="0,81,30,0" VerticalAlignment="Top"                          IsEnabled="False"/>
-                    <ListView Margin="0,134,0,0"/>
+                    <ListView x:Name="listView" Margin="0,134,10,10"  ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+
+                                <TextBlock Text="{Binding Content}" />
+
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                 </Grid>
             </PivotItem>
 

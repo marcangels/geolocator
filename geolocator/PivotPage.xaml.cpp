@@ -46,6 +46,7 @@ mutex *_mutexGps;
 mutex *_mutexChrono;
 atomic<bool> threadChronoIsRunning, threadGpsIsRunning;
 bool isOnTickDefined = false;
+auto itemCollection = ref new Platform::Collections::Vector<Object^>();
 
 void LogMessage(Object^ parameter)
 {
@@ -207,7 +208,15 @@ void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
 		MyMap->Center = centerPoint;
 		MyMap->ZoomLevel = 15;
 	}
-	labelCoords->Text = status + ":" + h + ":" + m + ":" + s + " : " + strCoords;
+	labelCoords->Text = h + ":" + m + ":" + s + " : " + strCoords;
+
+	TextBlock^ textBlock = ref new TextBlock();
+	ListViewItem^ item = ref new ListViewItem();
+	textBlock->Text = h + ":" + m + ":" + s + " : " + strCoords;
+	item->Content = textBlock;
+	itemCollection->Append(item);
+
+	listView->ItemsSource = itemCollection;
 }
 
 void ThreadGPS(Geolocator^ geolocator) {
@@ -259,7 +268,7 @@ void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows
 	if (!isOnTickDefined) {
 		timer = ref new DispatcherTimer();
 		TimeSpan span;
-		span.Duration = 500;
+		span.Duration = 10000000; // 500
 		timer->Interval = span;
 		auto reigstrationToken = timer->Tick += ref new EventHandler<Object^>(this, &PivotPage::OnTick);
 		isOnTickDefined = true;
