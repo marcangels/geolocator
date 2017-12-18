@@ -74,14 +74,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.xaml.cpp" />
-    <ClCompile Include="ItemPage.xaml.cpp" />
     <ClCompile Include="PivotPage.xaml.cpp" />
     <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h" />
-    <ClInclude Include="ItemPage.xaml.h" />
     <ClInclude Include="PivotPage.xaml.h" />
   </ItemGroup>
   <ItemGroup>
