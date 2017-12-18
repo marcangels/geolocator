@@ -8,6 +8,7 @@
 #include <thread>
 #include <mutex>
 #include <ctime>
+#include <list>
 #include <atomic>
 
 using namespace std;
@@ -31,10 +32,15 @@ using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Interop;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
+using namespace Windows::UI::Xaml::Controls::Maps;
 
 // Pour plus d'informations sur le modèle Application Pivot, consultez la page http://go.microsoft.com/fwlink/?LinkID=391641
 
 double duration;
+Geoposition^ position = nullptr;
+//Vector<BasicGeoposition>^ lstPoints = ref new Vector<BasicGeoposition>();
+//Geopath^ geopath = nullptr;
+//MapPolyline^ mapPolyline = nullptr;
 String^ strCoords = "undefined";
 mutex *_mutexGps;
 mutex *_mutexChrono;
@@ -176,6 +182,20 @@ void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
 	int m = (duration-(h*3600)) / 60;
 	int s = (duration - (h * 3600) - (m * 60));
 	//labelCoords->Text = duration + " : " + strCoords;
+	if (position != nullptr) {
+		BasicGeoposition basicPosition = BasicGeoposition();
+		basicPosition.Latitude = position->Coordinate->Latitude;
+		basicPosition.Longitude = position->Coordinate->Longitude;
+		//lstPoints->Append(basicPosition);
+		Geopoint^ centerPoint = ref new Geopoint(basicPosition);
+		MapIcon ^mapIcon = ref new MapIcon();
+		mapIcon->NormalizedAnchorPoint = Point(0.5, 1);
+		mapIcon->Location = centerPoint;
+		mapIcon->Title = h + ":" + m + ":" + s;
+		MyMap->MapElements->Append(mapIcon);
+		MyMap->Center = centerPoint;
+		MyMap->ZoomLevel = 15;
+	}
 	labelCoords->Text = h + ":" + m + ":" + s + " : " + strCoords;
 }
 
@@ -191,7 +211,7 @@ void ThreadGPS() {
 			[=](IAsyncOperation<Geoposition^>^ asyncOperation, AsyncStatus status) mutable {
 			_mutexGps->lock();
 			if (status != AsyncStatus::Error) {
-				Geoposition^ position = asyncOperation->GetResults();
+				position = asyncOperation->GetResults();
 				strCoords = position->Coordinate->Latitude + ";" + position->Coordinate->Longitude;
 			}
 			else {
@@ -219,6 +239,11 @@ void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows
 	buttonLaunch->IsEnabled = false;
 	buttonStop->IsEnabled = true;
 
+	MyMap->MapElements->Clear();
+	//geopath = ref new Geopath(lstPoints);
+	//mapPolyline = ref new MapPolyline();
+	//mapPolyline->Path = geopath;
+	//MyMap->MapElements->Append(mapPolyline);
 	_mutexChrono->lock();
 	_mutexGps->lock();
 
