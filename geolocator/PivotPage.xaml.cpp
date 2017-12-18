@@ -8,7 +8,6 @@
 #include <thread>
 #include <mutex>
 #include <ctime>
-#include <list>
 #include <atomic>
 
 using namespace std;
@@ -33,6 +32,7 @@ using namespace Windows::UI::Xaml::Interop;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
 using namespace Windows::UI::Xaml::Controls::Maps;
+using namespace Windows::UI::Core;
 
 // Pour plus d'informations sur le modèle Application Pivot, consultez la page http://go.microsoft.com/fwlink/?LinkID=391641
 
@@ -62,6 +62,10 @@ PivotPage::PivotPage()
 	SetValue(_defaultViewModelProperty, ref new Platform::Collections::Map<String^, Object^>(std::less<String^>()));
 	SetValue(_navigationHelperProperty, navigationHelper);
 
+	this->geolocator = ref new Geolocator();
+	geolocator->ReportInterval = 250;
+	geolocator->DesiredAccuracyInMeters = (unsigned int)5;
+	
 	_mutexChrono = new mutex();
 	_mutexGps = new mutex();
 }
@@ -199,14 +203,10 @@ void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
 	labelCoords->Text = h + ":" + m + ":" + s + " : " + strCoords;
 }
 
-void ThreadGPS() {
-	Geolocator^ geolocator = ref new Geolocator();
-	geolocator->ReportInterval = 250;
-	geolocator->DesiredAccuracyInMeters = (unsigned int)5;
+void ThreadGPS(Geolocator^ geolocator) {
 	threadGpsIsRunning = true;
 	while (threadGpsIsRunning) {
 		auto m_getOperation = geolocator->GetGeopositionAsync();
-
 		m_getOperation->Completed = ref new AsyncOperationCompletedHandler<Geoposition^>(
 			[=](IAsyncOperation<Geoposition^>^ asyncOperation, AsyncStatus status) mutable {
 			_mutexGps->lock();
@@ -239,6 +239,8 @@ void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows
 	buttonLaunch->IsEnabled = false;
 	buttonStop->IsEnabled = true;
 
+	//geolocator->StatusChanged += ref new TypedEventHandler<Geolocator^, StatusChangedEventArgs^>(this, &PivotPage::OnStatusChanged);
+
 	MyMap->MapElements->Clear();
 	//geopath = ref new Geopath(lstPoints);
 	//mapPolyline = ref new MapPolyline();
@@ -258,7 +260,7 @@ void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows
 
 	timer->Start();
 	
-	_threadGps = new thread(ThreadGPS);
+	_threadGps = new thread(ThreadGPS, geolocator);
 	_threadChrono = new thread(ThreadChrono);
 }
 

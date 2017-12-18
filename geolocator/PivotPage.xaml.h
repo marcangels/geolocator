@@ -63,6 +63,7 @@ namespace geolocator
 		std::thread *_threadGps;
 		std::thread *_threadChrono;
 		Windows::UI::Xaml::DispatcherTimer^ timer;
+		Windows::Devices::Geolocation::Geolocator^ geolocator;
 
 		Windows::ApplicationModel::Resources::ResourceLoader^ _resourceLoader;
 
