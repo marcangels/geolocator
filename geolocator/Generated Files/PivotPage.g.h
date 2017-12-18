@@ -50,6 +50,7 @@ namespace geolocator
         private: ::Windows::UI::Xaml::Controls::Button^ buttonLaunch;
         private: ::Windows::UI::Xaml::Controls::Button^ buttonStop;
         private: ::Windows::UI::Xaml::Controls::ListView^ listView;
+        private: ::Windows::UI::Xaml::Controls::TextBlock^ labelStatus;
     };
 }
 

@@ -38,21 +38,48 @@ using namespace Windows::UI::Core;
 
 double duration;
 Geoposition^ position = nullptr;
-//Vector<BasicGeoposition>^ lstPoints = ref new Vector<BasicGeoposition>();
-//Geopath^ geopath = nullptr;
-//MapPolyline^ mapPolyline = nullptr;
 String^ strCoords = "undefined", ^status;
 mutex *_mutexGps;
 mutex *_mutexChrono;
-atomic<bool> threadChronoIsRunning, threadGpsIsRunning;
+atomic<bool> threadChronoIsRunning, threadGpsIsRunning, resetChrono;
 bool isOnTickDefined = false;
 auto itemCollection = ref new Platform::Collections::Vector<Object^>();
 
-void LogMessage(Object^ parameter)
-{
-	auto paraString = parameter->ToString();
-	auto formattedText = std::wstring(paraString->Data()).append(L"\r\n");
-	OutputDebugString(formattedText.c_str());
+void ThreadGPS(Geolocator^ geolocator) {
+	threadGpsIsRunning = true;
+	while (threadGpsIsRunning) {
+		_mutexGps->lock();
+		auto m_getOperation = geolocator->GetGeopositionAsync();
+		m_getOperation->Completed = ref new AsyncOperationCompletedHandler<Geoposition^>(
+			[=](IAsyncOperation<Geoposition^>^ asyncOperation, AsyncStatus status) mutable {
+			if (status != AsyncStatus::Error) {
+				position = asyncOperation->GetResults();
+				strCoords = position->Coordinate->Latitude + ";" + position->Coordinate->Longitude;
+			}
+			else {
+				strCoords = "Erreur";
+			}
+		});
+
+		_mutexGps->unlock();
+		Sleep(500);
+	}
+}
+
+void ThreadChrono() {
+	std::clock_t start;
+	start = std::clock();
+	resetChrono = true;
+	threadChronoIsRunning = true;
+	while (threadChronoIsRunning) {
+		_mutexChrono->lock();
+		if (resetChrono) {
+			start = std::clock();
+			resetChrono = false;
+		}
+		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+		_mutexChrono->unlock();
+	}
 }
 
 PivotPage::PivotPage()
@@ -73,23 +100,142 @@ PivotPage::PivotPage()
 	this->geolocator = ref new Geolocator();
 	geolocator->ReportInterval = 1000;
 	geolocator->DesiredAccuracyInMeters = (unsigned int)5;
-	
+
+	geolocator->StatusChanged += ref new TypedEventHandler<Geolocator^, StatusChangedEventArgs^>(this, &PivotPage::OnStatusChanged);
+
 	_mutexChrono = new mutex();
 	_mutexGps = new mutex();
+
+	_mutexGps->lock();
+	_mutexChrono->lock();
+
+	_threadGps = new thread(ThreadGPS, geolocator);
+	_threadChrono = new thread(ThreadChrono);
+
+	Sleep(500);
+	// initialise le GPS
+	_mutexGps->unlock();
+	_mutexGps->lock();
 }
 
 PivotPage::~PivotPage() {
-	if (!threadChronoIsRunning && !threadGpsIsRunning) return;
 	threadChronoIsRunning = false;
 	threadGpsIsRunning = false;
 
-	timer->Stop();
+	if (timer->IsEnabled)
+		timer->Stop();
 
 	_mutexChrono->unlock();
 	_mutexGps->unlock();
 
-	_threadChrono->join();
-	_threadGps->join();
+	if (_threadChrono->joinable())
+		_threadChrono->join();
+	if (_threadGps->joinable())
+		_threadGps->join();
+}
+
+
+void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
+	_mutexChrono->unlock();
+	_mutexGps->unlock();
+	_mutexGps->lock();
+	_mutexChrono->lock();
+	int h = duration / 3600;
+	int m = (duration - (h * 3600)) / 60;
+	int s = (duration - (h * 3600) - (m * 60));
+	//labelCoords->Text = duration + " : " + strCoords;
+	if (position != nullptr) {
+		BasicGeoposition basicPosition = BasicGeoposition();
+		basicPosition.Latitude = position->Coordinate->Latitude;
+		basicPosition.Longitude = position->Coordinate->Longitude;
+		//lstPoints->Append(basicPosition);
+		Geopoint^ centerPoint = ref new Geopoint(basicPosition);
+		MapIcon ^mapIcon = ref new MapIcon();
+		mapIcon->NormalizedAnchorPoint = Point(0.5, 1);
+		mapIcon->Location = centerPoint;
+		mapIcon->Title = h + ":" + m + ":" + s;
+		MyMap->MapElements->Append(mapIcon);
+		MyMap->Center = centerPoint;
+		MyMap->ZoomLevel = 15;
+	}
+	labelCoords->Text = h + ":" + m + ":" + s + " : " + strCoords;
+
+	TextBlock^ textBlock = ref new TextBlock();
+	ListViewItem^ item = ref new ListViewItem();
+	textBlock->Text = h + ":" + m + ":" + s + " : " + strCoords;
+	item->Content = textBlock;
+	itemCollection->Append(item);
+
+	listView->ItemsSource = itemCollection;
+}
+
+void PivotPage::OnStatusChanged(Geolocator^ sender, StatusChangedEventArgs^ e) {
+	Dispatcher->RunAsync(
+		CoreDispatcherPriority::Normal,
+		ref new DispatchedHandler(
+			[this, e]()
+	{
+		switch (e->Status)
+		{
+		case PositionStatus::Ready:
+			status = "Ready";
+			buttonLaunch->IsEnabled = true;
+			break;
+
+		case PositionStatus::Initializing:
+			status = "Initializing";
+			break;
+
+		case PositionStatus::NoData:
+			status = "No data";
+			break;
+
+		case PositionStatus::Disabled:
+			status = "Disabled";
+			break;
+
+		case PositionStatus::NotInitialized:
+			status = "Not initialized";
+			break;
+
+		case PositionStatus::NotAvailable:
+			status = "Not available";
+			break;
+
+		default:
+			status = "Unknown";
+			break;
+		}
+		labelStatus->Text = "GPS status : " + status;
+	}, CallbackContext::Any));
+}
+
+void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	buttonLaunch->IsEnabled = false;
+	buttonStop->IsEnabled = true;
+
+	MyMap->MapElements->Clear();
+	resetChrono = true;
+	itemCollection->Clear();
+	if (!isOnTickDefined) {
+		timer = ref new DispatcherTimer();
+		TimeSpan span;
+		span.Duration = 10000000; // time beetween tick in 100 nanoseconds
+		timer->Interval = span;
+		auto reigstrationToken = timer->Tick += ref new EventHandler<Object^>(this, &PivotPage::OnTick);
+		isOnTickDefined = true;
+	}
+
+	timer->Start();
+}
+
+void geolocator::PivotPage::buttonStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	buttonLaunch->IsEnabled = true;
+	buttonStop->IsEnabled = false;
+
+	timer->Stop();
 }
 
 DependencyProperty^ PivotPage::_navigationHelperProperty = nullptr;
@@ -185,156 +331,5 @@ void PivotPage::SecondPivot_Loaded(Object^ sender, RoutedEventArgs ^e)
 	}, task_continuation_context::use_current());
 }
 
-void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
-	_mutexChrono->unlock();
-	_mutexGps->unlock();
-	_mutexGps->lock();
-	_mutexChrono->lock();
-	int h = duration / 3600;
-	int m = (duration-(h*3600)) / 60;
-	int s = (duration - (h * 3600) - (m * 60));
-	//labelCoords->Text = duration + " : " + strCoords;
-	if (position != nullptr) {
-		BasicGeoposition basicPosition = BasicGeoposition();
-		basicPosition.Latitude = position->Coordinate->Latitude;
-		basicPosition.Longitude = position->Coordinate->Longitude;
-		//lstPoints->Append(basicPosition);
-		Geopoint^ centerPoint = ref new Geopoint(basicPosition);
-		MapIcon ^mapIcon = ref new MapIcon();
-		mapIcon->NormalizedAnchorPoint = Point(0.5, 1);
-		mapIcon->Location = centerPoint;
-		mapIcon->Title = h + ":" + m + ":" + s;
-		MyMap->MapElements->Append(mapIcon);
-		MyMap->Center = centerPoint;
-		MyMap->ZoomLevel = 15;
-	}
-	labelCoords->Text = h + ":" + m + ":" + s + " : " + strCoords;
-
-	TextBlock^ textBlock = ref new TextBlock();
-	ListViewItem^ item = ref new ListViewItem();
-	textBlock->Text = h + ":" + m + ":" + s + " : " + strCoords;
-	item->Content = textBlock;
-	itemCollection->Append(item);
-
-	listView->ItemsSource = itemCollection;
-}
-
-void ThreadGPS(Geolocator^ geolocator) {
-	threadGpsIsRunning = true;
-	while (threadGpsIsRunning) {
-		auto m_getOperation = geolocator->GetGeopositionAsync();
-		m_getOperation->Completed = ref new AsyncOperationCompletedHandler<Geoposition^>(
-			[=](IAsyncOperation<Geoposition^>^ asyncOperation, AsyncStatus status) mutable {
-			_mutexGps->lock();
-			if (status != AsyncStatus::Error) {
-				position = asyncOperation->GetResults();
-				strCoords = position->Coordinate->Latitude + ";" + position->Coordinate->Longitude;
-			}
-			else {
-				strCoords = "Erreur";
-			}
-			_mutexGps->unlock();
-		});
-		Sleep(500);
-	}
-}
-
-void ThreadChrono() {
-	std::clock_t start;
-	start = std::clock();
-	threadChronoIsRunning = true;
-	while (threadChronoIsRunning) {
-		_mutexChrono->lock();
-		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-		_mutexChrono->unlock();
-	}
-}
-
-void geolocator::PivotPage::buttonLaunch_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
-{
-	buttonLaunch->IsEnabled = false;
-	buttonStop->IsEnabled = true;
-
-	geolocator->StatusChanged += ref new TypedEventHandler<Geolocator^, StatusChangedEventArgs^>(this, &PivotPage::OnStatusChanged);
-
-	MyMap->MapElements->Clear();
-	//geopath = ref new Geopath(lstPoints);
-	//mapPolyline = ref new MapPolyline();
-	//mapPolyline->Path = geopath;
-	//MyMap->MapElements->Append(mapPolyline);
-	_mutexChrono->lock();
-	_mutexGps->lock();
-
-	if (!isOnTickDefined) {
-		timer = ref new DispatcherTimer();
-		TimeSpan span;
-		span.Duration = 10000000; // 500
-		timer->Interval = span;
-		auto reigstrationToken = timer->Tick += ref new EventHandler<Object^>(this, &PivotPage::OnTick);
-		isOnTickDefined = true;
-	}
-
-	timer->Start();
-	
-	_threadGps = new thread(ThreadGPS, geolocator);
-	_threadChrono = new thread(ThreadChrono);
-}
-
-void PivotPage::OnStatusChanged(Geolocator^ sender, StatusChangedEventArgs^ e) {
-	switch (e->Status)
-	{
-	case PositionStatus::Ready:
-		// Location platform is providing valid data.
-		status = "Ready";
-		break;
-
-	case PositionStatus::Initializing:
-		// Location platform is acquiring a fix. It may or may not have data. Or the data may be less accurate.
-		status = "Initializing";
-		break;
-
-	case PositionStatus::NoData:
-		// Location platform could not obtain location data.
-		status = "No data";
-		break;
-
-	case PositionStatus::Disabled:
-		// The permission to access location data is denied by the user or other policies.
-		status = "Disabled";
-		break;
-
-	case PositionStatus::NotInitialized:
-		// The location platform is not initialized. This indicates that the application has not made a request for location data.
-		status = "Not initialized";
-		break;
-
-	case PositionStatus::NotAvailable:
-		// The location platform is not available on this version of the OS.
-		status = "Not available";
-		break;
-
-	default:
-		status = "Unknown";
-		break;
-	}
-}
-
-
-void geolocator::PivotPage::buttonStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
-{
-	buttonLaunch->IsEnabled = true;
-	buttonStop->IsEnabled = false;
-
-	threadChronoIsRunning = false;
-	threadGpsIsRunning = false;
-
-	timer->Stop();
-
-	_mutexChrono->unlock();
-	_mutexGps->unlock();
-
-	_threadChrono->join();
-	_threadGps->join();
-}
 
 

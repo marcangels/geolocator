@@ -34,6 +34,8 @@ void ::geolocator::PivotPage::InitializeComponent()
     buttonStop = safe_cast<::Windows::UI::Xaml::Controls::Button^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"buttonStop"));
     // Get the ListView named 'listView'
     listView = safe_cast<::Windows::UI::Xaml::Controls::ListView^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"listView"));
+    // Get the TextBlock named 'labelStatus'
+    labelStatus = safe_cast<::Windows::UI::Xaml::Controls::TextBlock^>(static_cast<Windows::UI::Xaml::IFrameworkElement^>(this)->FindName(L"labelStatus"));
 }
 
 void ::geolocator::PivotPage::Connect(int connectionId, Platform::Object^ target)

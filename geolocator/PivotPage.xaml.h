@@ -78,4 +78,5 @@ namespace geolocator
 		void buttonStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void OnTick(Platform::Object^ sender, Object^ e);
 	};
+
 }
