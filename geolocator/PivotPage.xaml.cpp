@@ -143,12 +143,10 @@ void geolocator::PivotPage::OnTick(Object^ sender, Object^ e) {
 	int h = duration / 3600;
 	int m = (duration - (h * 3600)) / 60;
 	int s = (duration - (h * 3600) - (m * 60));
-	//labelCoords->Text = duration + " : " + strCoords;
 	if (position != nullptr) {
 		BasicGeoposition basicPosition = BasicGeoposition();
 		basicPosition.Latitude = position->Coordinate->Latitude;
 		basicPosition.Longitude = position->Coordinate->Longitude;
-		//lstPoints->Append(basicPosition);
 		Geopoint^ centerPoint = ref new Geopoint(basicPosition);
 		MapIcon ^mapIcon = ref new MapIcon();
 		mapIcon->NormalizedAnchorPoint = Point(0.5, 1);
@@ -175,6 +173,7 @@ void PivotPage::OnStatusChanged(Geolocator^ sender, StatusChangedEventArgs^ e) {
 		ref new DispatchedHandler(
 			[this, e]()
 	{
+		buttonLaunch->IsEnabled = false;
 		switch (e->Status)
 		{
 		case PositionStatus::Ready:
